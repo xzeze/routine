@@ -83,9 +83,3 @@ class Rle
 		return $res;
 	}
 }
-
-$rle = new Rle();
-
-$rle->get_decode_str('1a2b3c5k');
-
-var_dump($argv);
