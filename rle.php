@@ -13,13 +13,6 @@ class Rle
 	public $targetFile = '';
 
 	/**
-	 * 初始化处理
-	 */
-	public function __construct()
-	{
-	}
-
-	/**
 	 * 获得压缩之后的字符串
 	 * @param  string $str [description]
 	 * @return [type]      [description]
