@@ -22,7 +22,29 @@ class Rle
 		// 获取字符串长度
 		$lenght = strlen($str);
 
-		echo $lenght;
+		// 设定新的字符串
+		$newStr = '';
+
+		// 设置初始字符 初始长度
+		$currentLenght = 0;
+		$currentStr = $str{0};
+
+		for ($i = 0; $i < $lenght; $i++) {
+			if ($str{$i} == $currentStr) {
+				$currentLenght += 1;
+			} else {
+				// 拼接新的字符串
+				$newStr .= $currentLenght.$currentStr;
+
+				$currentStr = $str{$i};
+				$currentLenght = 1;
+			}
+		}
+
+		// 最后一次会因为没有比较对象 没有办法进行拼接 所以需要在这里手动拼接
+		$newStr .= $currentLenght.$currentStr;
+
+		return $newStr;
 	}
 
 	/**
