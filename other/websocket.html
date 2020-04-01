@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>websocket-test</title>
+    <meta charset="utf-8">
+</head>
+<body>
+<input type="text" id="user_name" value="">
+<button id="startTalk">点击开始聊天</button>
+<div id="user_list">
+</div>
+<div>
+    输入要发送的内容：<input type="text" name="message" id="message" value="">
+    <button id="sendMessage">发送信息</button>
+</div>
+<div id="message_list">
+</div>
+</body>
+<script>
+        var fd = 0 // 自己的唯一标示
+        var websocket = null // ws链接资源
+        var startTalkDom = document.getElementById('startTalk') // 开始聊天dom
+        var sendMessageDom = document.getElementById('sendMessage') // 发送消息
+
+        // 生成 websocket 链接
+        startTalkDom.onclick = function () {
+            // 获取用户名称
+            var userName = document.getElementById("user_name").value
+
+            // 判断是否填写用户名
+            if (userName == "" || userName == undefined) {
+                alert('填写用户名')
+                return false
+            }
+
+            var wsServer = 'ws://127.0.0.1:5656?name=' + userName;
+            websocket = new WebSocket(wsServer);
+
+            // 监听打开事件
+            websocket.onopen = function (evt) {
+                // todo 可以做一些记录
+            };
+
+            // 监听关闭事件
+            websocket.onclose = function (evt) {
+                console.log("Disconnected");
+            };
+
+            // 监听消息事件
+            websocket.onmessage = function (evt) {
+                let data = JSON.parse(evt.data)
+
+                // 如果有用户过来
+                if (data.user != "" && data.user != undefined) {
+                    onlineUser(data.user)
+                }
+
+                // 如果有消息过来
+                if (data.message != "" && data.message != undefined) {
+                    showMessage(data.message)
+                }
+            };
+
+            // 监听错误事件
+            websocket.onerror = function (evt, e) {
+                console.log('Error occured: ' + evt.data);
+            };
+
+        }
+
+        // 发送消息
+        sendMessageDom.onclick = function () {
+            let message = document.getElementById('message').value // 获取要发送的信息
+
+            if (message == '' || message == undefined) {
+                alert('信息错误')
+                return false
+            }
+
+            // 获取发送给谁
+            let sendUserListDom = document.getElementsByClassName('send_user')
+            let sendUserList = []
+
+            for (let i = 0; i < sendUserListDom.length; i++) {
+                if (sendUserListDom[i].checked) {
+                    sendUserList.push(sendUserListDom[i].value)
+                }
+            }
+
+            if (sendUserList.length < 1) {
+                alert('请选择要发送给谁')
+                return false
+            }
+
+            // 发送信息
+            let data = {
+                "title": "message",
+                "user": sendUserList,
+                "message": message
+            }
+
+            websocket.send(JSON.stringify(data)) // 发送消息
+
+            let messageDom = document.getElementById('message_list')
+            let html = ''
+
+            html += '<span>我说:</span><span>'+message+'</span><br>'
+
+            messageDom.insertAdjacentHTML('afterend', html)
+        }
+
+        // 发送过来的消息
+        function showMessage(data) {
+            let messageDom = document.getElementById('message_list')
+            let html = ''
+
+            html += '<span>'+data.send_user+':</span><span>'+data.message+'</span><br>'
+
+            messageDom.insertAdjacentHTML('afterend', html)
+        }
+
+        // 用户列表展示
+        function onlineUser(userList) {
+            let html = ''
+
+            for (let i in userList) {
+                html += '<input type="checkbox" class="send_user" name="user" value="' + userList[i].id + '">' + userList[i].name + '<br>'
+                // 放到指定的div中
+                document.getElementById('user_list').innerHTML = html
+            }
+        }
+</script>
+</html>
